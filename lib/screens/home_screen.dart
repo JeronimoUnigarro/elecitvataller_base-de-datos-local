@@ -13,17 +13,26 @@ class _HomeScreenState extends State<HomeScreen> {
   final TextEditingController _amountController = TextEditingController();
   String _type = "income";
   List<Map<String, dynamic>> transactions = [];
+  double totalExpenses = 0.0; // 🔹 nuevo estado
 
   @override
   void initState() {
     super.initState();
     _loadTransactions();
+    _loadTotalExpenses(); // 🔹 cargar gastos totales
   }
 
   Future<void> _loadTransactions() async {
     final data = await FinanceDB.instance.getTransactions();
     setState(() {
       transactions = data;
+    });
+  }
+
+  Future<void> _loadTotalExpenses() async {
+    final total = await FinanceDB.instance.getTotalExpenses();
+    setState(() {
+      totalExpenses = total;
     });
   }
 
@@ -37,6 +46,7 @@ class _HomeScreenState extends State<HomeScreen> {
     _titleController.clear();
     _amountController.clear();
     _loadTransactions();
+    _loadTotalExpenses(); // 🔹 actualizar gastos totales al agregar
   }
 
   @override
@@ -68,6 +78,16 @@ class _HomeScreenState extends State<HomeScreen> {
                 ElevatedButton(
                   onPressed: _addTransaction,
                   child: const Text("Add Transaction"),
+                ),
+                const SizedBox(height: 10),
+                // 🔹 Mostrar total de gastos
+                Text(
+                  "Total Expenses: \$${totalExpenses.toStringAsFixed(2)}",
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.red,
+                  ),
                 ),
               ],
             ),
